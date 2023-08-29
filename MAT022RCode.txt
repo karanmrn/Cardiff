@@ -1,0 +1,181 @@
+﻿MAT022
+C22070780                                                                                        1
+
+
+
+
+R
+
+
+seeds<-read.table("~/Desktop/Exam/seeds.txt")
+Setting Random Seeds
+
+
+set.seed(22070780) 
+k<-sample(1:70, 50)
+myseeds<-seeds[c(k, k+70, k+140),]
+
+
+
+
+5a)
+colnames(myseeds) <- c("Area","Perimeter","Compactness","Length","Width","AsymmetryCoefficient","GrooveLength","Variety")
+myseeds$Variety <- as.factor(myseeds$Variety)
+pairs(myseeds[c("Area","Perimeter","Compactness","Length","Width","AsymmetryCoefficient","GrooveLength")])
+
+
+
+
+
+
+Scatter Plot
+
+
+  
+
+Q5) b
+R code
+>hist(myseeds[,7],freq=FALSE,xlab='GrooveLength',main='Histogram of Groove Length')
+> lines(density(myseeds[,7]))
+
+
+
+
+Plot
+
+
+  
+
+
+
+c)
+R code
+shapiro.test(myseeds[,7])
+
+
+Output:
+Shapiro-Wilk normality test
+
+
+data:  myseeds[, 7]
+W = 0.92719, p-value = 6.362e-07
+
+
+Result: We reject normality
+Step 1: H0 : Groove length is Normal vs HA : Groove length is Not Normal.
+Step 2: Test Statistics : 
+shapiro.test(g_length)  # g_length is variable that has groove length.
+Step 3: p-Value
+Step 4: Decision
+Since p-value is less than .05 - We Reject Null Hypothesis
+Step 5 : Conclusion
+There is statistically significant evidence that groove length is not normal
+
+
+
+
+d)
+shapiro.test(myseeds[,4])
+
+
+Shapiro-Wilk normality test
+data:  myseeds[, 4]
+W = 0.94545, p-value = 1.398e-05
+
+
+library(lawstat)
+> symmetry.test(myseeds[,4])
+
+
+        m-out-of-n bootstrap symmetry test by Miao, Gel, and Gastwirth (2006)
+
+
+data:  myseeds[, 4]
+Test statistic = 3.7105, p-value < 2.2e-16
+alternative hypothesis: the distribution is asymmetric.
+sample estimates:
+bootstrap optimal m 
+                 26 
+
+
+So normality/symmetry is violated, we use bootstrap 
+bootmean <- rep(0,150)
+for (i in 1:1000)
+{
+bootmean[i] <- mean(sample(myseeds[,4], replace=TRUE))
+12
+}
+sort(bootmean)[c(1.5, 148.5)]
+
+
+Output @ 99% CI
+5.518313 5.591760
+
+
+e)
+Step 1: H0 :  Length = 5 vs HA : Mean Length > 5
+Step 2: Test Statistics
+Step 3 ; finding p values
+Step 4: P value less
+Step 5: we reject null hypothesis as we have significant evidence that mean is great than 5
+shapiro.test(myseeds[,4])
+Pvalue 1.398e-05
+
+
+
+
+
+
+library(lawstat)
+> symmetry.test(myseeds[,4])
+Pvalue 2.2e-16
+Both Normality and Symmetricity is violated. So we do permutation test using oneSamplePermutationTest
+library(EnvStats)
+oneSamplePermutationTest(myseeds[,4],alternative = 'greater',mu=5)
+
+
+p-value=0
+ Step 4: Decision
+Since p-value is less than .05 - We Reject Null Hypothesis
+
+
+f)
+R code:
+shapiro.test(myseeds[myseeds[,8]=='1',4])
+shapiro.test(myseeds[myseeds[,8]=='2',4])
+shapiro.test(myseeds[myseeds[,8]=='3',4])
+
+
+Normality is not rejected for the three., Since they are independent we are checking equal variance 
+types <- c(rep('1',50), rep('2',50), rep('3',50))
+
+
+Output:
+p-value = 0.2534
+p-value = 0.3929
+p-value = 0.9289
+
+
+
+
+levene.test(myseeds[,4],types)
+p-value = 0.000863,  not equal variances
+Normality - Not Equal Varaine - Therefore Welch Test.
+oneway.test(myseeds[,4]~types)
+
+
+F = 202.44, num df = 2.000, denom df = 90.555, p-value < 2.2e-16
+Reject the null
+Step 1: H0 :  Length = 5 vs HA : Mean Length > 5
+Step 2: Test Statistics :
+Step 3: find p value= 2.2e-16
+Step 4: reject Null
+Step 5:There is statistically significant evidence that length is different for three varieties.
+
+
+
+
+
+
+g)
+Three sample , multiple proportions
